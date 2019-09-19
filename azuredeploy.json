@@ -58,6 +58,10 @@
         "description": "VM image version"
       }
     },
+    "internalLBAddress": {
+      "type": "string",
+      "defaultValue": "10.0.0.250"
+    },
     "loadBalancedAppPort1": {
       "type": "int",
       "defaultValue": 80,
@@ -161,8 +165,7 @@
     }
   },
   "variables": {
-    "computeLocation": "[parameters('clusterLocation')]",
-    "dnsName": "[parameters('clusterName')]",
+    "computeLocation":  "[parameters('clusterLocation')]",
     "vmStorageAccountName": "[toLower(concat( 'sflogs', uniqueString(resourceGroup().id), '1' ))]",
     "vmName": "vm",
     "publicIPAddressName": "PublicIP-VM",
@@ -270,36 +273,22 @@
     },
     {
       "apiVersion": "2018-08-01",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat(variables('lbIPName'),'-',variables('vmNodeType0Name'))]",
-      "location": "[variables('computeLocation')]",
-      "properties": {
-        "dnsSettings": {
-          "domainNameLabel": "[variables('dnsName')]"
-        },
-        "publicIPAllocationMethod": "Dynamic"
-      },
-      "tags": {
-        "resourceType": "Service Fabric",
-        "clusterName": "[parameters('clusterName')]"
-      }
-    },
-    {
-      "apiVersion": "2018-08-01",
       "type": "Microsoft.Network/loadBalancers",
       "name": "[concat('LB','-', parameters('clusterName'),'-',variables('vmNodeType0Name'))]",
       "location": "[variables('computeLocation')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-',variables('vmNodeType0Name')))]"
+        "[concat('Microsoft.Network/virtualNetworks/',parameters('virtualNetworkName'))]"
       ],
       "properties": {
         "frontendIPConfigurations": [
           {
             "name": "LoadBalancerIPConfig",
             "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('lbIPName'),'-',variables('vmNodeType0Name')))]"
-              }
+              "subnet":{
+                "id": "[variables('subnet0Ref')]"
+              },
+              "privateIPAddress": "[parameters('internalLBAddress')]",
+              "privateIPAllocationMethod": "Static"
             }
           }
         ],
@@ -845,7 +834,8 @@
             "name": "Security"
           }
         ],
-        "managementEndpoint": "[concat('https://',reference(concat(variables('lbIPName'),'-',variables('vmNodeType0Name'))).dnsSettings.fqdn,':',variables('nt0fabricHttpGatewayPort'))]",
+        "managementEndpoint": "[concat('https://',reference(variables('lbID0')).frontEndIPConfigurations[0].properties.privateIPAddress,':',parameters('nt0fabricHttpGatewayPort'))]",
+        //"managementEndpoint": "[concat('https://',reference(concat(variables('lbIPName'),'-',variables('vmNodeType0Name'))).dnsSettings.fqdn,':',variables('nt0fabricHttpGatewayPort'))]",
         "nodeTypes": [
           {
             "name": "[variables('vmNodeType0Name')]",
