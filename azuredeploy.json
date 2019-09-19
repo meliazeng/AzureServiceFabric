@@ -60,7 +60,7 @@
     },
     "internalLBAddress": {
       "type": "string",
-      "defaultValue": "10.0.0.250"
+      "defaultValue": "10.0.1.250"
     },
     "loadBalancedAppPort1": {
       "type": "int",
@@ -194,8 +194,11 @@
     "nt0fabricHttpGatewayPort": "19080",
     "nt0reverseProxyEndpointPort": "19081",
     "subnet0Name": "Subnet-0",
+    "subnet1Name": "Subnet-1",
     "subnet0Prefix": "10.0.0.0/24",
+    "subnet1Prefix": "10.0.1.0/24",
     "subnet0Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet0Name'))]",
+    "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet1Name'))]",
     "supportLogStorageAccountName": "[toLower( concat('sflogs', uniqueString(resourceGroup().id),'2'))]",
     "applicationDiagnosticsStorageAccountName": "[toLower(concat('wad',uniqueString(resourceGroup().id), '3' ))]",
     "lbID0": "[resourceId('Microsoft.Network/loadBalancers',concat('LB','-', parameters('clusterName'),'-',variables('vmNodeType0Name')))]",
@@ -246,7 +249,8 @@
       "name": "[variables('virtualNetworkName')]",
       "location": "[variables('computeLocation')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet0Name')))]"
+        "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet0Name')))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet1Name')))]"        
       ],
       "properties": {
         "addressSpace": {
@@ -261,6 +265,15 @@
               "addressPrefix": "[variables('subnet0Prefix')]",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', variables('subnet0Name')))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('subnet1Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', variables('subnet1Name')))]"
               }
             }
           }
@@ -285,7 +298,7 @@
             "name": "LoadBalancerIPConfig",
             "properties": {
               "subnet":{
-                "id": "[variables('subnet0Ref')]"
+                "id": "[variables('subnet1Ref')]"
               },
               "privateIPAddress": "[parameters('internalLBAddress')]",
               "privateIPAllocationMethod": "Static"
@@ -484,6 +497,62 @@
             }
           },
           {
+            "name": "allowSvcFabApplication",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "[concat(variables('nt0applicationStartPort'), '-', variables('nt0applicationEndPort'))]",
+              "direction": "Inbound",
+              "priority": 3940,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "allow fabric application ports within the vnet"
+            }
+          },
+          {
+            "name": "blockAll",
+            "properties": {
+              "access": "Deny",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "*",
+              "direction": "Inbound",
+              "priority": 4095,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "block all traffic except what we've explicitly allowed"
+            }
+          },
+          {
+            "name": "allowVNetRDP",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "3389",
+              "direction": "Inbound",
+              "priority": 3960,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "allow RDP within the net"
+            }
+          }
+        ]
+      },
+      "tags": {
+        "resourceType": "Service Fabric",
+        "clusterName": "[parameters('clusterName')]"
+      }
+    },
+    {
+      "apiVersion": "2018-08-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[concat('nsg', variables('subnet1Name'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
             "name": "allowSvcFabPortal",
             "properties": {
               "access": "Allow",
@@ -509,20 +578,6 @@
               "sourceAddressPrefix": "*",
               "sourcePortRange": "*",
               "description": "allow port used by the fabric client (includes powershell)"
-            }
-          },
-          {
-            "name": "allowSvcFabApplication",
-            "properties": {
-              "access": "Allow",
-              "destinationAddressPrefix": "*",
-              "destinationPortRange": "[concat(variables('nt0applicationStartPort'), '-', variables('nt0applicationEndPort'))]",
-              "direction": "Inbound",
-              "priority": 3940,
-              "protocol": "*",
-              "sourceAddressPrefix": "*",
-              "sourcePortRange": "*",
-              "description": "allow fabric application ports within the vnet"
             }
           },
           {
@@ -835,7 +890,6 @@
           }
         ],
         "managementEndpoint": "[concat('https://',reference(variables('lbID0')).frontEndIPConfigurations[0].properties.privateIPAddress,':',parameters('nt0fabricHttpGatewayPort'))]",
-        //"managementEndpoint": "[concat('https://',reference(concat(variables('lbIPName'),'-',variables('vmNodeType0Name'))).dnsSettings.fqdn,':',variables('nt0fabricHttpGatewayPort'))]",
         "nodeTypes": [
           {
             "name": "[variables('vmNodeType0Name')]",
