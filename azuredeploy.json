@@ -463,7 +463,7 @@
               "direction": "Inbound",
               "priority": 3950,
               "protocol": "*",
-              "sourceAddressPrefix": "VirtualNetwork",
+              "sourceAddressPrefix": "10.0.0.0/24",
               "sourcePortRange": "*",
               "description": "allow SMB traffic within the net, used by fabric to move packages around"
             }
@@ -477,7 +477,7 @@
               "direction": "Inbound",
               "priority": 3920,
               "protocol": "*",
-              "sourceAddressPrefix": "VirtualNetwork",
+              "sourceAddressPrefix": "10.0.0.0/24",
               "sourcePortRange": "*",
               "description": "allow ports within vnet that are used by the fabric to talk between nodes"
             }
@@ -491,7 +491,7 @@
               "direction": "Inbound",
               "priority": 3930,
               "protocol": "*",
-              "sourceAddressPrefix": "VirtualNetwork",
+              "sourceAddressPrefix": "10.0.0.0/24",
               "sourcePortRange": "*",
               "description": "allow fabric ephemeral ports within the vnet"
             }
