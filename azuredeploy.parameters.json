@@ -6,13 +6,13 @@
       "value": "westus"
     },
     "clusterName": {
-      "value": "GEN-UNIQUE"
+      "value": "Test-Cluster"
     },
     "adminUserName": {
-      "value": "GEN-UNIQUE"
+      "value": "sfadmin"
     },
     "adminPassword": {
-      "value": "GEN-PASSWORD"
+      "value": "Asdf@1234"
     },
     "vmImagePublisher": {
       "value": "MicrosoftWindowsServer"
@@ -39,13 +39,13 @@
       "value": "My"
     },
     "certificateThumbprint": {
-      "value": "GEN-SF-CERT-THUMBPRINT"
+      "value": ""
     },
     "sourceVaultValue": {
-      "value": "GEN-KEYVAULT-RESOURCE-ID"
+      "value": ""
     },
     "certificateUrlValue": {
-      "value": "GEN-SF-CERT-URL"
+      "value": ""
     },
     "storageAccountType": {
       "value": "Standard_LRS"

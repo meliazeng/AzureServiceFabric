@@ -171,7 +171,7 @@
     "publicIPAddressName": "PublicIP-VM",
     "publicIPAddressType": "Dynamic",
     "vmStorageAccountContainerName": "vhds",
-    "virtualNetworkName": "VNet",
+    "virtualNetworkName": "VNet-sf",
     "addressPrefix": "10.0.0.0/16",
     "nicName": "NIC",
     "lbName": "LoadBalancer",
@@ -290,7 +290,7 @@
       "name": "[concat('LB','-', parameters('clusterName'),'-',variables('vmNodeType0Name'))]",
       "location": "[variables('computeLocation')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/',parameters('virtualNetworkName'))]"
+        "[concat('Microsoft.Network/virtualNetworks/',variables('virtualNetworkName'))]"
       ],
       "properties": {
         "frontendIPConfigurations": [
@@ -451,7 +451,7 @@
       "apiVersion": "2018-08-01",
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[concat('nsg', variables('subnet0Name'))]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('clusterLocation')]",
       "properties": {
         "securityRules": [
           {
@@ -549,7 +549,7 @@
       "apiVersion": "2018-08-01",
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[concat('nsg', variables('subnet1Name'))]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('clusterLocation')]",
       "properties": {
         "securityRules": [
           {
@@ -889,7 +889,7 @@
             "name": "Security"
           }
         ],
-        "managementEndpoint": "[concat('https://',reference(variables('lbID0')).frontEndIPConfigurations[0].properties.privateIPAddress,':',parameters('nt0fabricHttpGatewayPort'))]",
+        "managementEndpoint": "[concat('https://',reference(variables('lbID0')).frontEndIPConfigurations[0].properties.privateIPAddress,':',variables('nt0fabricHttpGatewayPort'))]",
         "nodeTypes": [
           {
             "name": "[variables('vmNodeType0Name')]",
