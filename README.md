@@ -69,5 +69,11 @@ Unzip the downloaded .zip on your local machine, make any changes to template or
 [DownloadCert]: ./DownloadCert.PNG
 
 
+The command to deploy the template:
+```
+PS C:\Users\cgjam\downloads\service-fabric-cluster-templates-master\service-fabric-cluster-templates-master\5-VM-Windows-1-NodeTypes-Secure-NSG> New-AzServiceFabricCluster -ResourceGroupName sftestRG -CertificateOutputFolder "c:\temp\cert" -CertificatePassword $certPassword -CertificateSubjectName "sftestRG.westus.cloudapp.azure.com" -TemplateFile "C:\Users\cgjam\downloads\service-fabric-cluster-templates-master\service-fabric-cluster-templates-master\5-VM-Windows-1-NodeTypes-Secure-NSG\azuredeploy.json" -ParameterFile "C:\Users\cgjam\downloads\service-fabric-cluster-templates-master\service-fabric-cluster-templates-master\5-VM-Windows-1-NodeTypes-Secure-NSG\azuredeploy.parameters.json" -keyVaultName sftestRG1
+```
+
+
 
 
